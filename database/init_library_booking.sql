@@ -1,0 +1,51 @@
+-- ============================================
+-- 数据库: library_booking (图书馆预约系统)
+-- ============================================
+
+CREATE DATABASE IF NOT EXISTS library_booking
+    DEFAULT CHARACTER SET utf8mb4
+    DEFAULT COLLATE utf8mb4_unicode_ci;
+
+USE library_booking;
+
+-- ============================================
+-- 表1: seat — 座位表
+-- ============================================
+CREATE TABLE IF NOT EXISTS seat (
+    id              BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT  COMMENT '座位ID',
+    floor           TINYINT UNSIGNED NOT NULL                 COMMENT '所属楼层',
+    is_active       TINYINT UNSIGNED NOT NULL DEFAULT 1       COMMENT '是否可用(1=可用 0=停用)',
+    PRIMARY KEY (id),
+    INDEX idx_floor (floor)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='座位表';
+
+-- ============================================
+-- 表2: booking — 预约记录表
+-- ============================================
+CREATE TABLE IF NOT EXISTS booking (
+    id              BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT  COMMENT '主键ID',
+    user_name       VARCHAR(64)      NOT NULL                 COMMENT '预约人姓名',
+    user_id         VARCHAR(32)      NOT NULL                 COMMENT '学号/工号',
+    phone           VARCHAR(20)      DEFAULT NULL             COMMENT '联系电话',
+    seat_id         BIGINT UNSIGNED  NOT NULL                 COMMENT '座位ID',
+    booking_date    DATE             NOT NULL                 COMMENT '预约日期',
+    time_slot       TINYINT UNSIGNED NOT NULL                 COMMENT '时间段(1=上午 2=下午 3=晚上)',
+    created_at      DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at      DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (id),
+    INDEX idx_user_id (user_id),
+    INDEX idx_booking_date (booking_date),
+    INDEX idx_seat_date (seat_id, booking_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='预约记录表';
+
+-- ============================================
+-- 表3: seat_availability — 座位余量表 (存7天)
+-- ============================================
+CREATE TABLE IF NOT EXISTS seat_availability (
+    floor           TINYINT UNSIGNED NOT NULL COMMENT '楼层',
+    seat_date       DATE             NOT NULL COMMENT '日期',
+    time_slot       TINYINT UNSIGNED NOT NULL COMMENT '时间段(1=上午 2=下午 3=晚上)',
+    total_seats     INT UNSIGNED     NOT NULL DEFAULT 0 COMMENT '总座位数',
+    available_seats INT UNSIGNED     NOT NULL DEFAULT 0 COMMENT '剩余座位数',
+    PRIMARY KEY (floor, seat_date, time_slot)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='座位余量表(7天)';
