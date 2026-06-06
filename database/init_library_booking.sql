@@ -9,19 +9,7 @@ CREATE DATABASE IF NOT EXISTS library_booking
 USE library_booking;
 
 -- ============================================
--- 表1: users — 用户表
--- ============================================
-CREATE TABLE IF NOT EXISTS users (
-    id              BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT  COMMENT '用户ID',
-    student_id      VARCHAR(32)      NOT NULL                 COMMENT '学号',
-    password        VARCHAR(128)     NOT NULL                 COMMENT '密码',
-    created_at      DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '注册时间',
-    PRIMARY KEY (id),
-    UNIQUE INDEX idx_student_id (student_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户表';
-
--- ============================================
--- 表2: seat — 座位表
+-- 表1: seat — 座位表
 -- ============================================
 CREATE TABLE IF NOT EXISTS seat (
     id              BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT  COMMENT '座位ID',
@@ -30,6 +18,19 @@ CREATE TABLE IF NOT EXISTS seat (
     PRIMARY KEY (id),
     INDEX idx_floor (floor)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='座位表';
+
+-- ============================================
+-- 表2: user — 用户表
+-- ============================================
+CREATE TABLE IF NOT EXISTS user (
+    id              BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT  COMMENT '主键ID',
+    user_id         VARCHAR(32)      NOT NULL                 COMMENT '学号/工号',
+    password        VARCHAR(255)     NOT NULL                 COMMENT '密码(加密存储)',
+    created_at      DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '注册时间',
+    updated_at      DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (id),
+    UNIQUE INDEX uk_user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户表';
 
 -- ============================================
 -- 表3: booking — 预约记录表
