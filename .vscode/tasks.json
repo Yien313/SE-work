@@ -1,0 +1,32 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "启动后端服务器",
+            "type": "shell",
+            "command": "java",
+            "args": [
+                "-cp",
+                "lib\\mysql-connector-j-8.0.33.jar;backend",
+                "main"
+            ],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "isBackground": true,
+            "problemMatcher": [],
+            "runOptions": {
+                "runOn": "folderOpen"
+            }
+        },
+        {
+            "label": "停止后端服务器",
+            "type": "shell",
+            "command": "taskkill /F /IM java.exe 2>nul & echo 服务器已停止",
+            "presentation": {
+                "reveal": "always"
+            }
+        }
+    ]
+}
