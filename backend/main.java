@@ -54,6 +54,31 @@ public class main {
         }
     }
 
+    // ---- 登录验证 ----
+    private static String doLogin(String studentId, String password) {
+        String sql = "SELECT password FROM user WHERE user_id = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, studentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    // 用户存在，校验密码
+                    String dbPass = rs.getString("password");
+                    if (dbPass.equals(password)) {
+                        return "{\"success\":true,\"message\":\"登录成功，即将进入预约系统\"}";
+                    } else {
+                        return "{\"success\":false,\"message\":\"密码错误\"}";
+                    }
+                } else {
+                    // 用户不存在
+                    return "{\"success\":false,\"message\":\"当前用户不存在，请注册！\"}";
+                }
+            }
+        } catch (SQLException e) {
+            return "{\"success\":false,\"message\":\"数据库错误: " + e.getMessage() + "\"}";
+        }
+    }
+
     // ---- HTTP 请求处理器 ----
     static class RegisterHandler implements HttpHandler {
         @Override
@@ -103,6 +128,36 @@ public class main {
         }
     }
 
+    // ---- 登录请求处理器 ----
+    static class LoginHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                sendResponse(exchange, 204, "");
+                return;
+            }
+            if (!"POST".equals(exchange.getRequestMethod())) {
+                sendResponse(exchange, 405, "{\"success\":false,\"message\":\"仅支持POST\"}");
+                return;
+            }
+
+            String body = new BufferedReader(
+                new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8))
+                .lines().collect(Collectors.joining("\n"));
+
+            String studentId = jsonValue(body, "studentId");
+            String password  = jsonValue(body, "password");
+
+            if (studentId.isEmpty() || password.isEmpty()) {
+                sendResponse(exchange, 400, "{\"success\":false,\"message\":\"学号和密码不能为空\"}");
+                return;
+            }
+
+            String result = doLogin(studentId, password);
+            sendResponse(exchange, 200, result);
+        }
+    }
+
     // ---- 启动服务器 ----
     public static void main(String[] args) throws Exception {
         // 读取数据库密码：优先命令行参数，否则交互输入
@@ -137,9 +192,11 @@ public class main {
         // 启动 HTTP 服务器
         HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
         server.createContext("/api/register", new RegisterHandler());
+        server.createContext("/api/login",    new LoginHandler());
         server.setExecutor(null);
         server.start();
         System.out.println("后端服务器已启动 → http://localhost:" + PORT);
         System.out.println("注册接口: POST http://localhost:" + PORT + "/api/register");
+        System.out.println("登录接口: POST http://localhost:" + PORT + "/api/login");
     }
 }
