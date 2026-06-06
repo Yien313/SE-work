@@ -5,15 +5,16 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.sql.*;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("restriction")
 public class main {
 
-    // ---- 数据库配置 ----
+    // ---- 数据库配置（密码由用户启动时输入） ----
     private static final String DB_URL  = "jdbc:mysql://localhost:3306/library_booking";
     private static final String DB_USER = "root";
-    private static final String DB_PASS = "Lmz061112";
+    private static String DB_PASS = null; // 启动时设置
 
     // ---- 服务器端口 ----
     private static final int PORT = 8080;
@@ -57,7 +58,13 @@ public class main {
     static class RegisterHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            // ① 只处理 POST
+            // ① 处理 OPTIONS 预检请求（CORS）
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                sendResponse(exchange, 204, "");
+                return;
+            }
+
+            // ② 只处理 POST
             if (!"POST".equals(exchange.getRequestMethod())) {
                 sendResponse(exchange, 405, "{\"success\":false,\"message\":\"仅支持POST\"}");
                 return;
@@ -98,9 +105,39 @@ public class main {
 
     // ---- 启动服务器 ----
     public static void main(String[] args) throws Exception {
+        // 读取数据库密码：优先命令行参数，否则交互输入
+        if (args.length > 0) {
+            DB_PASS = args[0];
+        } else {
+            System.out.print("请输入 MySQL root 密码: ");
+            Scanner scanner = new Scanner(System.in);
+            DB_PASS = scanner.nextLine().trim();
+        }
+
+        // 验证密码是否为空
+        if (DB_PASS.isEmpty()) {
+            System.err.println("密码不能为空，服务器启动失败！");
+            return;
+        }
+
+        // 测试数据库连接
+        System.out.print("正在连接数据库... ");
+        Connection testConn = null;
+        try {
+            testConn = getConnection();
+            System.out.println("连接成功！");
+        } catch (SQLException e) {
+            System.err.println("连接失败: " + e.getMessage());
+            System.err.println("请检查密码是否正确，服务器启动失败！");
+            return;
+        } finally {
+            try { if (testConn != null) testConn.close(); } catch (SQLException ignored) {}
+        }
+
+        // 启动 HTTP 服务器
         HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
         server.createContext("/api/register", new RegisterHandler());
-        server.setExecutor(null); // 默认线程池
+        server.setExecutor(null);
         server.start();
         System.out.println("后端服务器已启动 → http://localhost:" + PORT);
         System.out.println("注册接口: POST http://localhost:" + PORT + "/api/register");
