@@ -1,5 +1,5 @@
 # Maven build output
 target/
 
-# Java compiled class files
+# Java 编译文件
 *.class
