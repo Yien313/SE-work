@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>注册界面</title>
+    <link rel="stylesheet" href="css/registerStyle.css">
+</head>
+<body>
+    <div class="register">
+        <h2>用户注册</h2>
+        <div class="item">
+            <label>学号:</label>
+            <input type="text" id="username" placeholder="请输入账号">
+        </div>
+        <div class="item">
+            <label>密码:</label>
+            <input type="password" id="password" placeholder="请输入密码">
+        </div>
+        <div class="item">
+            <label>确认:</label>
+            <input type="password" id="confirmPwd" placeholder="请再次输入密码">
+        </div>
+        <button id="registerBtn">注册</button>
+        <div id="errorTip"></div>
+        <div id="successTip"></div>
+        <a href="login.html" class="switchLink">返回登录</a>
+    </div>
+
+    <script src="js/registerScript.js"></script>
+</body>
+</html>

@@ -9,7 +9,19 @@ CREATE DATABASE IF NOT EXISTS library_booking
 USE library_booking;
 
 -- ============================================
--- 表1: seat — 座位表
+-- 表1: users — 用户表
+-- ============================================
+CREATE TABLE IF NOT EXISTS users (
+    id              BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT  COMMENT '用户ID',
+    student_id      VARCHAR(32)      NOT NULL                 COMMENT '学号',
+    password        VARCHAR(128)     NOT NULL                 COMMENT '密码',
+    created_at      DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '注册时间',
+    PRIMARY KEY (id),
+    UNIQUE INDEX idx_student_id (student_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户表';
+
+-- ============================================
+-- 表2: seat — 座位表
 -- ============================================
 CREATE TABLE IF NOT EXISTS seat (
     id              BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT  COMMENT '座位ID',
@@ -20,7 +32,7 @@ CREATE TABLE IF NOT EXISTS seat (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='座位表';
 
 -- ============================================
--- 表2: booking — 预约记录表
+-- 表3: booking — 预约记录表
 -- ============================================
 CREATE TABLE IF NOT EXISTS booking (
     id              BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT  COMMENT '主键ID',
@@ -39,7 +51,7 @@ CREATE TABLE IF NOT EXISTS booking (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='预约记录表';
 
 -- ============================================
--- 表3: seat_availability — 座位余量表 (存7天)
+-- 表4: seat_availability — 座位余量表 (存7天)
 -- ============================================
 CREATE TABLE IF NOT EXISTS seat_availability (
     floor           TINYINT UNSIGNED NOT NULL COMMENT '楼层',
