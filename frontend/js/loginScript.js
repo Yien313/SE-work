@@ -27,7 +27,7 @@ btn.onclick = function(){
     fetch('http://localhost:8080/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId: name, password: pass })
+        body: JSON.stringify({ userId: name, password: pass })
     })
     .then(function(response) {
         return response.json();
@@ -37,7 +37,7 @@ btn.onclick = function(){
         btn.innerText = '登录';
         if (data.success) {
             // 登录成功，可保存用户信息到 sessionStorage
-            sessionStorage.setItem('studentId', name);
+            sessionStorage.setItem('userId', name);
             location.href = 'home.html';
         } else {
             tip.innerText = data.message || '账号或密码错误';

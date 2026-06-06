@@ -45,7 +45,7 @@ btn.onclick = function(){
     fetch('http://localhost:8080/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ studentId: name, password: pass })
+        body: JSON.stringify({ userId: name, password: pass })
     })
     .then(function(response) {
         return response.json();
