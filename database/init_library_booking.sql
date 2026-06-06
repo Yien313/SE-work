@@ -26,7 +26,6 @@ CREATE TABLE IF NOT EXISTS user (
     id              BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT  COMMENT '主键ID',
     user_id         VARCHAR(32)      NOT NULL                 COMMENT '学号/工号',
     password        VARCHAR(255)     NOT NULL                 COMMENT '密码(加密存储)',
-    user_name       VARCHAR(64)      NOT NULL DEFAULT ''      COMMENT '姓名',
     created_at      DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '注册时间',
     updated_at      DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (id),

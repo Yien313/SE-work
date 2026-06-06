@@ -61,14 +61,14 @@ public class main {
             conn = DriverManager.getConnection(URL, USER, PASSWORD);
             stmt = conn.createStatement();
 
-            // ===== 1. 建表（与 init_library_booking.sql 一致） =====
-            System.out.println("\n===== 1. 创建 user 表 =====");
+            // ===== 1. 先删旧表，再建表（与 init_library_booking.sql 一致） =====
+            System.out.println("\n===== 1. 重建 user 表 =====");
+            stmt.executeUpdate("DROP TABLE IF EXISTS user");
             String createSQL = """
                 CREATE TABLE IF NOT EXISTS user (
                     id          BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT  COMMENT '主键ID',
                     user_id     VARCHAR(32)      NOT NULL                 COMMENT '学号/工号',
                     password    VARCHAR(255)     NOT NULL                 COMMENT '密码(加密存储)',
-                    user_name   VARCHAR(64)      NOT NULL DEFAULT ''      COMMENT '姓名',
                     created_at  DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '注册时间',
                     updated_at  DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
                     PRIMARY KEY (id),
@@ -81,35 +81,32 @@ public class main {
             // ===== 2. 插入测试数据 =====
             System.out.println("\n===== 2. 插入测试用户 =====");
             String insertSQL = """
-                INSERT INTO user (user_id, password, user_name)
-                VALUES (?, ?, ?)
-                ON DUPLICATE KEY UPDATE user_name = VALUES(user_name)
+                INSERT INTO user (user_id, password)
+                VALUES (?, ?)
+                ON DUPLICATE KEY UPDATE user_id = VALUES(user_id)
                 """;
             pStmt = conn.prepareStatement(insertSQL);
 
             // 插入两条测试数据（实际场景中密码应为加密值）
             pStmt.setString(1, "2024001");
             pStmt.setString(2, "hashed_password_001");  // 实际应用中应存哈希
-            pStmt.setString(3, "张三");
             pStmt.executeUpdate();
-            System.out.println("  已插入: 2024001 (张三)");
+            System.out.println("  已插入: 2024001");
 
             pStmt.setString(1, "T2024002");
             pStmt.setString(2, "hashed_password_002");
-            pStmt.setString(3, "李四");
             pStmt.executeUpdate();
-            System.out.println("  已插入: T2024002 (李四)");
+            System.out.println("  已插入: T2024002");
 
             // ===== 3. 查询所有用户 =====
             System.out.println("\n===== 3. 查询所有用户 =====");
-            rs = stmt.executeQuery("SELECT id, user_id, user_name, created_at FROM user");
-            System.out.printf("%-6s %-14s %-8s %-20s\n", "id", "学号/工号", "姓名", "注册时间");
-            System.out.println("------ -------------- -------- --------------------");
+            rs = stmt.executeQuery("SELECT id, user_id, created_at FROM user");
+            System.out.printf("%-6s %-14s %-20s\n", "id", "学号/工号", "注册时间");
+            System.out.println("------ -------------- --------------------");
             while (rs.next()) {
-                System.out.printf("%-6d %-14s %-8s %-20s\n",
+                System.out.printf("%-6d %-14s %-20s\n",
                     rs.getLong("id"),
                     rs.getString("user_id"),
-                    rs.getString("user_name"),
                     rs.getString("created_at")
                 );
             }
